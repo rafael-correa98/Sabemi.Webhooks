@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Sabemi.Webhooks.Api.BackgroundServices;
 using Sabemi.Webhooks.Api.Filters;
 using Sabemi.Webhooks.Application.Interfaces;
 using Sabemi.Webhooks.Application.Services;
+using Sabemi.Webhooks.Infrastructure.BackgroundProcessing;
 using Sabemi.Webhooks.Infrastructure.Persistence;
 using Sabemi.Webhooks.Infrastructure.Repositories;
 
@@ -16,8 +18,11 @@ builder.Services.AddScoped<IPagamentoWebhookService, PagamentoWebhookService>();
 builder.Services.AddScoped<IEventoBrutoRepository, EventoBrutoRepository>();
 builder.Services.AddScoped<IStatusContratoRepository, StatusContratoRepository>();
 
-// Filtro de segurança
 builder.Services.AddScoped<ApiKeyAuthFilter>();
+
+// Fila e worker de processamento em background
+builder.Services.AddSingleton<IEventoProcessingQueue, EventoProcessingQueue>();
+builder.Services.AddHostedService<PagamentoBackgroundWorker>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
