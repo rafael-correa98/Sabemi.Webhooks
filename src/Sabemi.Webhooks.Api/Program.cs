@@ -15,14 +15,25 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IPagamentoWebhookService, PagamentoWebhookService>();
+builder.Services.AddScoped<IPagamentoConsultaService, PagamentoConsultaService>();
 builder.Services.AddScoped<IEventoBrutoRepository, EventoBrutoRepository>();
 builder.Services.AddScoped<IStatusContratoRepository, StatusContratoRepository>();
 
 builder.Services.AddScoped<ApiKeyAuthFilter>();
 
-// Fila e worker de processamento em background
 builder.Services.AddSingleton<IEventoProcessingQueue, EventoProcessingQueue>();
 builder.Services.AddHostedService<PagamentoBackgroundWorker>();
+
+// CORS - libera o frontend local (ajuste a origem quando o front estiver definido)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,6 +47,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("FrontendPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

@@ -6,17 +6,20 @@ using Sabemi.Webhooks.Application.Interfaces;
 namespace Sabemi.Webhooks.Api.Controllers;
 
 [ApiController]
-[Route("webhooks")]
 public class PagamentosController : ControllerBase
 {
     private readonly IPagamentoWebhookService _pagamentoWebhookService;
+    private readonly IPagamentoConsultaService _pagamentoConsultaService;
 
-    public PagamentosController(IPagamentoWebhookService pagamentoWebhookService)
+    public PagamentosController(
+        IPagamentoWebhookService pagamentoWebhookService,
+        IPagamentoConsultaService pagamentoConsultaService)
     {
         _pagamentoWebhookService = pagamentoWebhookService;
+        _pagamentoConsultaService = pagamentoConsultaService;
     }
 
-    [HttpPost("pagamento")]
+    [HttpPost("webhooks/pagamento")]
     [ServiceFilter(typeof(ApiKeyAuthFilter))]
     [ProducesResponseType(typeof(PagamentoWebhookResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -26,8 +29,19 @@ public class PagamentosController : ControllerBase
         CancellationToken ct)
     {
         var resultado = await _pagamentoWebhookService.ReceberAsync(request, ct);
-
-        // Responde rápido — o processamento pesado acontece em background (Fase 5)
         return Accepted(resultado);
+    }
+
+    [HttpGet("pagamentos")]
+    [ProducesResponseType(typeof(PaginacaoResponse<PagamentoConsultaResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListarPagamentos(
+        [FromQuery] string? status,
+        [FromQuery] string? idContrato,
+        [FromQuery] int pagina = 1,
+        [FromQuery] int tamanhoPagina = 20,
+        CancellationToken ct = default)
+    {
+        var resultado = await _pagamentoConsultaService.ListarPagamentosAsync(status, idContrato, pagina, tamanhoPagina, ct);
+        return Ok(resultado);
     }
 }
