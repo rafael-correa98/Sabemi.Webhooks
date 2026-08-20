@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="8.10.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.4.2" />
@@ -27,6 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Sabemi.Webhooks.Application\Sabemi.Webhooks.Application.csproj" />
     <ProjectReference Include="..\..\src\Sabemi.Webhooks.Domain\Sabemi.Webhooks.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Sabemi.Webhooks.Api\Sabemi.Webhooks.Api.csproj" />
   </ItemGroup>
 
 </Project>
