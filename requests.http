@@ -1,0 +1,88 @@
+### Sabemi.Webhooks — Exemplos de requisições
+### Compatível com a extensão "REST Client" (VS Code) ou pode ser
+### importado manualmente no Insomnia/Postman.
+
+@baseUrl = http://localhost:5065
+@apiKey = sabemi-webhook-secret-key-2026
+
+### 1. Enviar um webhook de pagamento (evento novo)
+POST {{baseUrl}}/webhooks/pagamento
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "idTransacao": "TXN-001",
+  "idContrato": "CONTR-123",
+  "valor": 1500.50,
+  "dataPagamento": "2026-08-20T10:00:00",
+  "status": "Sucesso"
+}
+
+### 2. Reenviar o mesmo evento (deve responder como duplicado, sem reprocessar)
+POST {{baseUrl}}/webhooks/pagamento
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "idTransacao": "TXN-001",
+  "idContrato": "CONTR-123",
+  "valor": 1500.50,
+  "dataPagamento": "2026-08-20T10:00:00",
+  "status": "Sucesso"
+}
+
+### 3. Requisição sem ApiKey (deve retornar 401)
+POST {{baseUrl}}/webhooks/pagamento
+Content-Type: application/json
+
+{
+  "idTransacao": "TXN-999",
+  "idContrato": "CONTR-999",
+  "valor": 100.00,
+  "dataPagamento": "2026-08-20T10:00:00",
+  "status": "Sucesso"
+}
+
+### 4. Requisição com ApiKey inválida (deve retornar 401)
+POST {{baseUrl}}/webhooks/pagamento
+Content-Type: application/json
+X-Api-Key: chave-errada
+
+{
+  "idTransacao": "TXN-998",
+  "idContrato": "CONTR-998",
+  "valor": 100.00,
+  "dataPagamento": "2026-08-20T10:00:00",
+  "status": "Sucesso"
+}
+
+### 5. Segundo pagamento, em outro contrato, com status de erro reportado pelo banco
+POST {{baseUrl}}/webhooks/pagamento
+Content-Type: application/json
+X-Api-Key: {{apiKey}}
+
+{
+  "idTransacao": "TXN-002",
+  "idContrato": "CONTR-456",
+  "valor": 850.00,
+  "dataPagamento": "2026-08-20T14:30:00",
+  "status": "Erro"
+}
+
+### 6. Listar todos os pagamentos recebidos
+GET {{baseUrl}}/pagamentos
+
+### 7. Listar pagamentos filtrando por status
+GET {{baseUrl}}/pagamentos?status=Sucesso
+
+### 8. Listar pagamentos filtrando por contrato
+GET {{baseUrl}}/pagamentos?idContrato=CONTR-123
+
+### 9. Listar pagamentos com paginação
+GET {{baseUrl}}/pagamentos?pagina=1&tamanhoPagina=10
+
+### 10. Consultar o status atual de um contrato
+GET {{baseUrl}}/contratos/CONTR-123/status
+
+### 11. Consultar status de um contrato inexistente (deve retornar 404)
+GET {{baseUrl}}/contratos/CONTRATO-QUE-NAO-EXISTE/status
